@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sehat AI - Voice-First Post-Op Care Assistant</title>
+    <meta name="description" content="Revolutionary voice-first AI-powered post-operative care platform for comprehensive patient recovery management">
+    
+    <!-- Accessibility & Performance -->
+    <meta name="theme-color" content="#2563eb">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sehat AI">
+    
+    <!-- ARIA Live Region for Voice Announcements -->
+    <div id="aria-live-region" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- OmniDimension Web Widget Integration -->
+    <script id="omnidimension-web-widget" async src="https://backend.omnidim.io/web_widget.js?secret_key=4152605ca8b8d2c63d9ea6bfb691059f"></script>
+    
+    <!-- Enhanced OmniDimension Configuration -->
+    <script>
+      // Global OmniDimension configuration
+      window.OmniDimensionConfig = {
+        secretKey: '4152605ca8b8d2c63d9ea6bfb691059f',
+        mode: 'voice-only', // voice-only mode for hands-free operation
+        language: 'en-US',
+        chat: {
+          enabled: false // Explicitly disable chat widget functionality
+        },
+        knowledgeBase: {
+          enabled: true,
+          webSearch: true, // OpenAI web search enabled
+          customData: [],
+          medicalKnowledge: true
+        },
+        voiceSettings: {
+          language: 'en-US',
+          autoStart: false,
+          continuous: true,
+          rate: 0.9,
+          pitch: 1.0,
+          volume: 1.0
+        },
+        features: {
+          medicalAnalysis: true,
+          symptomTracking: true,
+          riskAssessment: true,
+          navigationCommands: true,
+          conversationHistory: true
+        }
+      };
+
+      // Enhanced OmniDimension Mock for Development
+      if (!window.OmniDimension) {
+        window.OmniDimension = {
+          isReady: false,
+          _eventListeners: {},
+          
+          initialize: function(config) {
+            console.log('🎤 OmniDimension initialized with config:', config);
+            this.isReady = true;
+            this.config = config;
+            
+            // Trigger ready event
+            setTimeout(() => {
+              this._triggerEvent('ready', {
+                status: 'initialized',
+                sessionId: `omnidim-session-${Date.now()}`,
+                capabilities: ['voice_recognition', 'tts', 'medical_analysis', 'knowledge_base', 'web_search']
+              });
+            }, 1000);
+            
+            return Promise.resolve({
+              sessionId: `omnidim-session-${Date.now()}`,
+              status: 'initialized',
+              capabilities: ['voice_recognition', 'tts', 'medical_analysis', 'knowledge_base', 'web_search']
+            });
+          },
+          
+          startListening: function(config) {
+            console.log('🎧 Started listening with config:', config);
+            this.isListening = true;
+            
+            // Simulate voice recognition with medical context
+            setTimeout(() => {
+              this._triggerEvent('transcript', {
+                transcript: 'I have some pain in my knee, about level 6',
+                confidence: 0.95,
+                isFinal: true,
+                medicalEntities: ['pain', 'knee', 'level 6']
+              });
+            }, 3000);
+            
+            return Promise.resolve({
+              status: 'listening',
+              language: config?.language || 'en-US',
+              continuous: config?.continuous || true
+            });
+          },
+          
+          stopListening: function() {
+            console.log('🛑 Stopped listening');
+            this.isListening = false;
+            return Promise.resolve({ status: 'stopped' });
+          },
+          
+          speak: function(text, config) {
+            console.log('🗣️ Speaking:', text, 'with config:', config);
+            
+            // Use Web Speech API for actual TTS with enhanced voice selection
+            if (window.speechSynthesis) {
+              const utterance = new SpeechSynthesisUtterance(text);
+              utterance.rate = config?.rate || 0.9;
+              utterance.pitch = config?.pitch || 1;
+              utterance.volume = config?.volume || 1;
+              utterance.lang = config?.language || 'en-US';
+              
+              // Select best available voice
+              const voices = window.speechSynthesis.getVoices();
+              const preferredVoice = voices.find(voice => 
+                voice.lang.startsWith(config?.language?.split('-')[0] || 'en') && 
+                (voice.name.includes('Neural') || voice.name.includes('Premium') || voice.name.includes('Enhanced'))
+              );
+              if (preferredVoice) {
+                utterance.voice = preferredVoice;
+              }
+              
+              window.speechSynthesis.speak(utterance);
+            }
+            
+            return Promise.resolve({ status: 'speaking', text });
+          },
+          
+          queryKnowledgeBase: function(query, context) {
+            console.log('🧠 Querying knowledge base:', query, 'with context:', context);
+            
+            // Enhanced medical knowledge base responses
+            const medicalKnowledge = {
+              'pain management': {
+                answer: 'For post-operative pain management, follow your prescribed medication schedule. Apply ice packs for 15-20 minutes every 2-3 hours. Elevate the affected area when possible. Rate your pain from 1-10 and report levels above 7 immediately to your healthcare provider.',
+                sources: ['Mayo Clinic Pain Management', 'Post-Op Care Guidelines'],
+                confidence: 0.95,
+                webResults: []
+              },
+              'wound care': {
+                answer: 'Keep your incision clean and dry. Change dressings as instructed by your healthcare provider. Watch for signs of infection like increased redness, swelling, warmth, or unusual discharge. Take daily photos to track healing progress and share with your care team.',
+                sources: ['Wound Care Manual', 'Surgical Recovery Guidelines'],
+                confidence: 0.95,
+                webResults: []
+              },
+              'knee replacement': {
+                answer: 'After knee replacement surgery, focus on gentle range-of-motion exercises, ice therapy, and gradual weight bearing as directed. Physical therapy is crucial for optimal recovery. Expect gradual improvement over 3-6 months.',
+                sources: ['Orthopedic Surgery Guidelines', 'Knee Replacement Recovery'],
+                confidence: 0.9,
+                webResults: []
+              },
+              'medication': {
+                answer: 'Take medications exactly as prescribed. Set reminders to avoid missed doses. Common post-op medications include pain relievers, anti-inflammatories, and sometimes antibiotics. Report any side effects immediately to your healthcare provider.',
+                sources: ['Medication Safety Guidelines', 'Post-Op Pharmacy Guide'],
+                confidence: 0.9,
+                webResults: []
+              }
+            };
+            
+            const lowerQuery = query.toLowerCase();
+            for (const [key, value] of Object.entries(medicalKnowledge)) {
+              if (lowerQuery.includes(key.replace(' ', ''))) {
+                return Promise.resolve(value);
+              }
+            }
+            
+            // Default response with web search simulation
+            return Promise.resolve({
+              answer: 'Based on current medical guidelines and your recovery context, I recommend consulting with your healthcare provider for personalized advice. I can help with general recovery information and guide you through the app features.',
+              sources: ['Medical Guidelines', 'Patient Care Standards'],
+              confidence: 0.8,
+              webResults: [
+                { title: 'Post-Operative Care Guidelines', url: 'medical-source.com', snippet: 'Comprehensive recovery information...' }
+              ]
+            });
+          },
+          
+          analyzeMedicalContent: function(text) {
+            console.log('🏥 Analyzing medical content:', text);
+            
+            const lowerText = text.toLowerCase();
+            const symptoms = [];
+            let riskLevel = 'low';
+            let painLevel = null;
+            let urgentCare = false;
+            
+            // Enhanced medical analysis
+            if (lowerText.includes('pain')) {
+              symptoms.push('pain');
+              const painMatch = lowerText.match(/(?:pain.*?level.*?(\d+)|level.*?(\d+).*?pain|(\d+).*?pain)/);
+              if (painMatch) {
+                painLevel = parseInt(painMatch[1] || painMatch[2] || painMatch[3]);
+                if (painLevel >= 8) { riskLevel = 'high'; urgentCare = true; }
+                else if (painLevel >= 6) riskLevel = 'medium';
+              }
+            }
+            
+            // Critical symptoms
+            const criticalSymptoms = ['fever', 'bleeding', 'infection', 'shortness of breath', 'chest pain'];
+            criticalSymptoms.forEach(symptom => {
+              if (lowerText.includes(symptom)) {
+                symptoms.push(symptom);
+                riskLevel = 'high';
+                urgentCare = true;
+              }
+            });
+            
+            // Moderate symptoms
+            const moderateSymptoms = ['swelling', 'nausea', 'dizziness', 'headache'];
+            moderateSymptoms.forEach(symptom => {
+              if (lowerText.includes(symptom)) {
+                symptoms.push(symptom);
+                if (riskLevel === 'low') riskLevel = 'medium';
+              }
+            });
+            
+            const recommendations = [];
+            if (urgentCare) {
+              recommendations.push('Seek immediate medical attention');
+              recommendations.push('Contact your healthcare provider urgently');
+              recommendations.push('Do not delay treatment');
+            } else if (riskLevel === 'medium') {
+              recommendations.push('Monitor symptoms closely');
+              recommendations.push('Take prescribed medication as directed');
+              recommendations.push('Contact healthcare provider if symptoms worsen');
+              recommendations.push('Document symptoms with photos if applicable');
+            } else {
+              recommendations.push('Continue following your recovery plan');
+              recommendations.push('Stay hydrated and get adequate rest');
+              recommendations.push('Maintain prescribed exercise routine');
+              recommendations.push('Take progress photos for your next appointment');
+            }
+            
+            return Promise.resolve({
+              symptoms,
+              painLevel,
+              riskLevel,
+              recommendations,
+              urgentCare,
+              confidence: 0.9,
+              sentiment: lowerText.includes('better') || lowerText.includes('improving') ? 'positive' : 
+                        lowerText.includes('worse') || lowerText.includes('terrible') ? 'negative' : 'neutral',
+              followUpNeeded: riskLevel !== 'low'
+            });
+          },
+          
+          startConversation: function(context) {
+            console.log('💬 Starting conversation with context:', context);
+            const sessionId = `conv-${Date.now()}`;
+            this.currentSession = {
+              sessionId,
+              status: 'active',
+              startTime: new Date(),
+              context,
+              conversationHistory: []
+            };
+            return Promise.resolve(this.currentSession);
+          },
+          
+          generateContextualResponse: function(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Enhanced navigation commands
+            if (lowerMessage.includes('open patient call') || lowerMessage.includes('start patient call')) {
+              window.dispatchEvent(new CustomEvent('voice-navigate', { detail: { path: '/patient-call' } }));
+              return "Opening patient call interface now. You can start a voice consultation with your healthcare provider.";
+            }
+            
+            if (lowerMessage.includes('open dashboard') || lowerMessage.includes('go to dashboard')) {
+              window.dispatchEvent(new CustomEvent('voice-navigate', { detail: { path: '/' } }));
+              return "Opening dashboard now. Here you can see your recovery overview and recent activities.";
+            }
+            
+            if (lowerMessage.includes('provider dashboard') || lowerMessage.includes('open provider')) {
+              window.dispatchEvent(new CustomEvent('voice-navigate', { detail: { path: '/provider-dashboard' } }));
+              return "Opening provider dashboard now. This shows patient monitoring and alert management.";
+            }
+            
+            if (lowerMessage.includes('patient portal') || lowerMessage.includes('my portal')) {
+              window.dispatchEvent(new CustomEvent('voice-navigate', { detail: { path: '/patient-portal' } }));
+              return "Opening patient portal now. Here you can track your progress, take photos, and manage appointments.";
+            }
+            
+            // Enhanced medical responses
+            if (lowerMessage.includes('pain')) {
+              return "I understand you're experiencing pain. Can you rate it from 1 to 10, where 10 is the worst pain imaginable? Also, please describe the location and type of pain. This will help me provide better guidance.";
+            }
+            
+            if (lowerMessage.includes('medication') || lowerMessage.includes('medicine')) {
+              return "I can help you with medication information. Are you asking about your current prescriptions, side effects, dosage timing, or do you need to set up medication reminders?";
+            }
+            
+            if (lowerMessage.includes('exercise') || lowerMessage.includes('therapy')) {
+              return "Physical therapy and exercises are crucial for recovery. Would you like me to guide you through your prescribed exercises, check your progress, or schedule a therapy session?";
+            }
+            
+            if (lowerMessage.includes('appointment') || lowerMessage.includes('schedule')) {
+              return "I can help you with appointments. Would you like to schedule a new appointment, check existing ones, reschedule, or set up reminders for upcoming visits?";
+            }
+            
+            if (lowerMessage.includes('photo') || lowerMessage.includes('picture')) {
+              return "Taking progress photos is important for tracking your healing. Would you like to take a photo now, or would you like me to guide you on the best way to document your recovery?";
+            }
+            
+            // Emergency responses
+            if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent') || lowerMessage.includes('help me')) {
+              return "This sounds urgent. I'm alerting your healthcare team immediately. Please stay calm and follow any emergency instructions. If this is a life-threatening emergency, please call emergency services right away.";
+            }
+            
+            // General greetings and help
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+              return "Hello! I'm Sehat, your AI healthcare assistant. I'm here to help with your recovery journey. You can ask me about symptoms, medications, exercises, appointments, or navigate through the app. How can I assist you today?";
+            }
+            
+            if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+              return "I'm here to support your recovery in many ways: I can help you report symptoms, track pain levels, manage medications, schedule appointments, guide exercises, take progress photos, and navigate the app using voice commands. I also have access to medical knowledge and can provide evidence-based guidance. What would you like help with?";
+            }
+            
+            return "I understand your concern. Can you tell me more about what you're experiencing? I'm here to help with your recovery and can provide guidance, connect you with your healthcare team, or help you navigate through the app features.";
+          },
+          
+          // Event system
+          on: function(event, callback) {
+            console.log('📡 Registered event listener for:', event);
+            this._eventListeners[event] = this._eventListeners[event] || [];
+            this._eventListeners[event].push(callback);
+          },
+          
+          off: function(event, callback) {
+            console.log('📡 Removed event listener for:', event);
+            if (this._eventListeners[event]) {
+              const index = this._eventListeners[event].indexOf(callback);
+              if (index > -1) {
+                this._eventListeners[event].splice(index, 1);
+              }
+            }
+          },
+          
+          _triggerEvent: function(event, data) {
+            if (this._eventListeners[event]) {
+              this._eventListeners[event].forEach(callback => {
+                try {
+                  callback(data);
+                } catch (error) {
+                  console.error('Error in event callback:', error);
+                }
+              });
+            }
+          },
+          
+          getConversationHistory: function(sessionId) {
+            return Promise.resolve(this.currentSession?.conversationHistory || []);
+          },
+          
+          endConversation: function(sessionId) {
+            if (this.currentSession) {
+              this.currentSession.status = 'ended';
+              this.currentSession.endTime = new Date();
+            }
+            return Promise.resolve({ status: 'ended' });
+          }
+        };
+      }
+      
+      // Initialize OmniDimension when the widget loads
+      window.addEventListener('load', () => {
+        if (window.OmniDimension) {
+          window.OmniDimension.initialize(window.OmniDimensionConfig);
+        }
+      });
+      
+      // Simulate ready event for development
+      setTimeout(() => {
+        if (window.OmniDimension && window.OmniDimension._triggerEvent) {
+          window.OmniDimension._triggerEvent('ready', { 
+            status: 'SDK loaded successfully',
+            features: ['voice_recognition', 'knowledge_base', 'medical_analysis', 'web_search'],
+            version: '2.0.0'
+          });
+        }
+      }, 2000);
+    </script>
+    
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Enhanced Screen Reader & Accessibility Styles -->
+    <style>
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        * {
+          border-color: ButtonText !important;
+        }
+      }
+      
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+      
+      /* Focus visible improvements */
+      *:focus-visible {
+        outline: 2px solid #2563eb;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      
+      /* Voice command indicators */
+      [data-voice-command] {
+        position: relative;
+      }
+      
+      [data-voice-command]:hover::after {
+        content: "🎤 " attr(data-voice-command);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 1000;
+        pointer-events: none;
+      }
+      
+      /* Loading states */
+      .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+      }
+      
+      /* Modern glassmorphism effects */
+      .glass {
+        background: rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+      
+      /* Gradient animations */
+      .gradient-animation {
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+      }
+      
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+    </style>
+  </body>
+</html>
